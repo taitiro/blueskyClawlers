@@ -12,7 +12,7 @@ if(isset($_GET['n']) && is_numeric($_GET['n'])) {
 $numStr = strval($num + 1);
 
 $db = new SQLite3('../db.sqlite');
-$stmt = $db->prepare('SELECT * FROM post WHERE text LIKE :query ORDER BY date LIMIT :start, 21');
+$stmt = $db->prepare('SELECT * FROM post WHERE text LIKE :query ORDER BY date DESC LIMIT :start, 21');
 $stmt->bindValue('query', '%' . $query . '%', SQLITE3_TEXT);
 $offset = $num * 20;
 $stmt->bindValue('start', $offset, SQLITE3_INTEGER);
