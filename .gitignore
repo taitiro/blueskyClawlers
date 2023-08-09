@@ -255,3 +255,5 @@ $RECYCLE.BIN/
 
 # データベースファイル
 db.sqlite
+# nohup
+nohup.out
