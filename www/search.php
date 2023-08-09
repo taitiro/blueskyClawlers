@@ -66,6 +66,7 @@ echo <<<EOT
       </form>
     </article>
     <footer class="px-4 my-5 text-center">
+    <p><a href="./">TOPに戻る</a></p>
     <p>運営者：<a href="https://www.darakeru.com/amamako.html">amamako</a>
       （<a href="https://bsky.app/profile/darakeru.com">Blueskyアカウント</a>）</p>
     </footer>
