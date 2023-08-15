@@ -4,12 +4,13 @@ import Clawler from './server'
 const run = async () => {
   dotenv.config()
   const server = Clawler.create({
-    sqliteLocation: 'db.sqlite',
     subscriptionEndpoint:
       maybeStr(process.env.SUBSCRIPTION_ENDPOINT) ??
       'wss://bsky.social',
     subscriptionReconnectDelay:
       maybeInt(process.env.SUBSCRIPTION_RECONNECT_DELAY) ?? 3000,
+    dbUri: maybeStr(process.env.DB_URI) ?? '',
+    dbName: maybeStr(process.env.DB_NAME) ?? '',
   })
   await server.start()
 }

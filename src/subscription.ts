@@ -26,19 +26,13 @@ export class Subscription extends SubscriptionBase {
           date: Math.floor(new Date(create.record.createdAt).getTime() / 1000),
         }
       })
-
-    if (postsToDelete.length > 0) {
-      await this.db
-        .deleteFrom('post')
-        .where('uri', 'in', postsToDelete)
-        .execute()
-    }
     if (postsToCreate.length > 0) {
-      await this.db
-        .insertInto('post')
-        .values(postsToCreate)
-        .onConflict((oc) => oc.doNothing())
-        .execute()
+      await this.col.insertMany(postsToCreate)
+    }
+    if (postsToDelete.length > 0) {
+      await this.col.deleteMany({
+        date: {$in: postsToDelete}
+      })
     }
   }
 }

@@ -1,5 +1,6 @@
 export type Config = {
-  sqliteLocation: string
   subscriptionEndpoint: string
   subscriptionReconnectDelay: number
+  dbUri: string
+  dbName: string
 }

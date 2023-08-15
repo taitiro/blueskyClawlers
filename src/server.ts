@@ -1,31 +1,33 @@
-import { createDb, Database, migrateToLatest } from './db'
+import { MongoClient, ServerApiVersion} from 'mongodb'
 import { Subscription } from './subscription'
 import { Config } from './config'
 
 export class Clawler {
-  public db: Database
   public subscription: Subscription
   public cfg: Config
 
   constructor(
-    db: Database,
     subscription: Subscription,
     cfg: Config,
   ) {
-    this.db = db
     this.subscription = subscription
     this.cfg = cfg
   }
 
   static create(cfg: Config) {
-    const db = createDb(cfg.sqliteLocation)
-    const subscription = new Subscription(db, cfg.subscriptionEndpoint)
+    const col = new MongoClient(cfg.dbUri, {
+      serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+      }
+    }).db(cfg.dbName).collection('post');
+    const subscription = new Subscription(col, cfg.subscriptionEndpoint)
 
-    return new Clawler(db, subscription, cfg)
+    return new Clawler(subscription, cfg)
   }
 
   async start(): Promise<void> {
-    await migrateToLatest(this.db)
     this.subscription.run(this.cfg.subscriptionReconnectDelay)
     return
   }

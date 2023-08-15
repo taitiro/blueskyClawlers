@@ -14,9 +14,8 @@
     "@atproto/lexicon": "^0.1.0",
     "@atproto/repo": "^0.1.0",
     "@atproto/xrpc-server": "^0.2.0",
-    "better-sqlite3": "^8.3.0",
     "dotenv": "^16.0.3",
-    "kysely": "^0.22.0",
+    "mongodb": "5.7",
     "multiformats": "^9.9.0"
   },
   "devDependencies": {

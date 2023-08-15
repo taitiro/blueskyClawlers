@@ -26,7 +26,7 @@ try {
     ['text' => new MongoDB\BSON\Regex($query, 'i')],
     [
         'limit' => 21,
-        'sort' => ['date' => 1],
+        'sort' => ['date' => -1],
     ]
   );
   $resultHtml = "";
