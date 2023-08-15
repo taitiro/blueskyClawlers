@@ -6,7 +6,7 @@ use MongoDB\Driver\ServerApi;
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 if(isset($_GET['q'])) {
-  $query = $_GET['q'];
+  $query = preg_quote($_GET['q']);
 } else {
   exit(1);
 }
