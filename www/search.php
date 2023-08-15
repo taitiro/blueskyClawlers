@@ -27,6 +27,7 @@ try {
     [
         'limit' => 21,
         'sort' => ['date' => -1],
+        'skip' => $num * 20,
     ]
   );
   $resultHtml = "";
