@@ -1,4 +1,10 @@
 <?php
+require_once __DIR__ . '/../vendor/autoload.php';
+use Exception;
+use MongoDB\Client;
+use MongoDB\Driver\ServerApi;
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv->load();
 if(isset($_GET['q'])) {
   $query = $_GET['q'];
 } else {
@@ -11,32 +17,39 @@ if(isset($_GET['n']) && is_numeric($_GET['n'])) {
 }
 $numStr = strval($num + 1);
 
-$db = new SQLite3('../db.sqlite');
-$stmt = $db->prepare('SELECT * FROM post WHERE text LIKE :query ORDER BY date DESC LIMIT :start, 21');
-$stmt->bindValue('query', '%' . $query . '%', SQLITE3_TEXT);
-$offset = $num * 20;
-$stmt->bindValue('start', $offset, SQLITE3_INTEGER);
-$results = $stmt->execute();
-$resultHtml = "";
-$i = 0;
-while($row = $results->fetchArray()){
-  $i++;
-  if ($i > 20){
-    break;
-  }
-  $href = preg_replace('~at://(.+?)/app.bsky.feed.post/(.+?)~',
+$apiVersion = new ServerApi(ServerApi::V1);
+
+try {
+  $client = new MongoDB\Client($_ENV['DB_URI'], [], ['serverApi' => $apiVersion]);
+  $collection = $client->db0->post;
+  $cursor = $collection->find(
+    ['text' => new MongoDB\BSON\Regex($query, 'i')],
+    [
+        'limit' => 21,
+        'sort' => ['date' => 1],
+    ]
+  );
+  $resultHtml = "";
+  $i = 0;
+  foreach ($cursor as $document) {
+    $i++;
+    if ($i > 20){
+      break;
+    }
+    $href = preg_replace('~at://(.+?)/app.bsky.feed.post/(.+?)~',
     'https://bsky.app/profile/${1}/post/${2}',
-    $row["uri"]);
-  $resultHtml .= '        <a href="' . 
-    $href . 
-    '" class="list-group-item list-group-item-action d-flex gap-3 py-3">' . 
-    $row["text"] .
-    '<span class="d-block small opacity-50">' .
-    date('Y/m/d H:m:d', $row["date"]) .
-    '</span></a></p>';
+    $document['uri']);
+    $resultHtml .= '        <a href="' . 
+      $href . 
+      '" class="list-group-item list-group-item-action d-flex gap-3 py-3">' . 
+      $document['text'] .
+      '<span class="d-block small opacity-50">' .
+      date('Y/m/d H:m:d', $document['date']) .
+      '</span></a></p>';
+ }
+} catch (Exception $e) {
+  //NOP
 }
-$stmt->close();
-$db->close();
 $last = '<div class="alert alert-dark" role="alert">検索結果は以上です</div>';
 if($i > 20){
   $last = '<input type="submit" value="次へ" class="btn btn-primary btn-md px-4 gap-3">';
