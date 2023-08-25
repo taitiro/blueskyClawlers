@@ -1,21 +1,22 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
-use Exception;
 use MongoDB\Client;
 use MongoDB\Driver\ServerApi;
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
-if(isset($_GET['q'])) {
-  $query = preg_quote($_GET['q']);
-} else {
+if(!isset($_GET['q'])) {
   exit(1);
 }
+$query = trim(preg_quote($_GET['q']));
+$regexStr = '^(?=.*' . preg_replace(['/ /', '/　/'], ')(?=.*', $query) . ')';
 if(isset($_GET['n']) && is_numeric($_GET['n'])) {
   $num = intval($_GET['n']);
 } else {
   $num = 0;
 }
 $numStr = strval($num + 1);
+$resultHtml = '';
+$i = 0;
 
 $apiVersion = new ServerApi(ServerApi::V1);
 
@@ -23,7 +24,7 @@ try {
   $client = new MongoDB\Client($_ENV['DB_URI'], [], ['serverApi' => $apiVersion]);
   $collection = $client->db0->post;
   $cursor = $collection->find(
-    ['text' => new MongoDB\BSON\Regex($query, 'i')],
+    ['text' => new MongoDB\BSON\Regex($regexStr, 'i')],
     [
         'limit' => 21,
         'sort' => ['date' => -1],
@@ -31,7 +32,6 @@ try {
     ]
   );
   $resultHtml = "";
-  $i = 0;
   foreach ($cursor as $document) {
     $i++;
     if ($i > 20){
